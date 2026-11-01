@@ -1,0 +1,29 @@
+flowchart LR
+    consumer([Споживач]):::ext
+    operator([Оператор]):::ext
+    billing([Білінг-система]):::ext
+
+    subgraph TB1 [Межа довіри: застосунок]
+        web[Вебсервер]
+        app[Прикладна логіка]
+    end
+
+    subgraph TB2 [Межа довіри: сховище]
+        db[(База даних)]
+    end
+
+    %% Прямі потоки
+    consumer -->|HTTPS запит: передача показань| web
+    operator -->|HTTPS запит: перевірка даних| web
+    web -->|Передача запиту| app
+    app -->|SQL запит: збереження показань| db
+    app -->|API запит: передача обсягів| billing
+
+    %% Зворотні потоки
+    db -->|Дані/Підтвердження| app
+    billing -->|Статус прийняття| app
+    app -->|HTML/JSON відповідь| web
+    web -->|Відповідь| consumer
+    web -->|Відповідь| operator
+
+    classDef ext fill:#eee,stroke:#333;
